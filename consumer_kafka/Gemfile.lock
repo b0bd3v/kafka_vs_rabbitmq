@@ -1,0 +1,20 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    digest-crc (0.6.4)
+      rake (>= 12.0.0, < 14.0.0)
+    rake (13.0.6)
+    ruby-kafka (1.5.0)
+      digest-crc
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  ruby-kafka
+
+RUBY VERSION
+   ruby 3.2.0p0
+
+BUNDLED WITH
+   2.4.1

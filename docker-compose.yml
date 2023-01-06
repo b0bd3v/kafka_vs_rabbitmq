@@ -20,6 +20,16 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
+  kafka-manager:
+    image: hlebalbau/kafka-manager
+    ports:
+      - "9000:9000"
+    environment:
+      - ZK_HOSTS=zookeeper:2181
+      - APPLICATION_SECRET=secret
+    depends_on:
+      - zookeeper
+      - kafka
   rabbitmq:
     image: rabbitmq:3.11.5-management
     ports:
@@ -28,21 +38,33 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-  producer:
+  producer_rabbitmq:
     image: ruby
     command: bash -c "cd /app && bundle install && bundle exec ruby producer.rb"
     volumes:
-      - ./producer:/app
+      - ./producer_rabbitmq:/app
     depends_on:
       - rabbitmq
-      - kafka
-  consumer:
+  consumer_rabbitmq:
     image: ruby
     command: bash -c "cd /app && bundle install && bundle exec ruby consumer.rb"
     volumes:
-      - ./consumer:/app
+      - ./consumer_rabbitmq:/app
     depends_on:
       - rabbitmq
+  producer_kafka:
+    image: ruby
+    command: bash -c "cd /app && bundle install && bundle exec ruby producer.rb"
+    volumes:
+      - ./producer_kafka:/app
+    depends_on:
+      - kafka
+  consumer_kafka:
+    image: ruby
+    command: bash -c "cd /app && bundle install && bundle exec ruby consumer.rb"
+    volumes:
+      - ./consumer_kafka:/app
+    depends_on:
       - kafka
 
 volumes:
