@@ -11,6 +11,8 @@ consumer.subscribe('example_test_topic')
 trap("TERM") { consumer.stop }
 
 consumer.each_message do |message|
-  diff = 1000 * (Time.now.to_f - Time.parse(message.value).to_f)
+  payload = JSON.parse(message.value)
+
+  diff = 1000 * (Time.now.to_f - Time.parse(payload.time).to_f)
   p "Difference in miliseconds: #{diff.to_i}"
 end
