@@ -1,6 +1,31 @@
 version: "2"
 
 services:
+  # RabbitMQ with RabbitMQ Management
+  rabbitmq:
+    image: rabbitmq:3.11.5-management
+    ports:
+      - 5672:5672 # AMQP protocol port
+      - 15672:15672 # HTTP management port
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+  producer_rabbitmq:
+    image: ruby
+    command: bash -c "cd /app && bundle install && bundle exec ruby producer.rb"
+    volumes:
+      - ./producer_rabbitmq:/app
+    depends_on:
+      - rabbitmq
+  consumer_rabbitmq:
+    image: ruby
+    command: bash -c "cd /app && bundle install && bundle exec ruby consumer.rb"
+    volumes:
+      - ./consumer_rabbitmq:/app
+    depends_on:
+      - rabbitmq
+
+  # Kafka with Kafka Manager
   zookeeper:
     image: docker.io/bitnami/zookeeper:3.8
     ports:
@@ -30,28 +55,22 @@ services:
     depends_on:
       - zookeeper
       - kafka
-  rabbitmq:
-    image: rabbitmq:3.11.5-management
+  kafka-kafdrop:
+    image: obsidiandynamics/kafdrop
     ports:
-      - 5672:5672 # AMQP protocol port
-      - 15672:15672 # HTTP management port
+      - "9010:9000"
     environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-  producer_rabbitmq:
-    image: ruby
-    command: bash -c "cd /app && bundle install && bundle exec ruby producer.rb"
-    volumes:
-      - ./producer_rabbitmq:/app
+      - KAFKA_BROKERCONNECT=kafka:9092
     depends_on:
-      - rabbitmq
-  consumer_rabbitmq:
-    image: ruby
-    command: bash -c "cd /app && bundle install && bundle exec ruby consumer.rb"
-    volumes:
-      - ./consumer_rabbitmq:/app
+      - kafka
+  kafka-trifecta:
+    image: chatu/trifecta
+    ports:
+      - "8888:8888"
+    environment:
+      - ZOOKEEPERS=zookeeper:2181
     depends_on:
-      - rabbitmq
+      - kafka
   producer_kafka:
     image: ruby
     command: bash -c "cd /app && bundle install && bundle exec ruby producer.rb"
@@ -66,6 +85,38 @@ services:
       - ./consumer_kafka:/app
     depends_on:
       - kafka
+
+  # Rails with Karafka
+  mariadb:
+    image: docker.io/bitnami/mariadb:10.6
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+  producer-rails-karafka:
+    image: docker.io/bitnami/rails:7
+    ports:
+      - '3000:3000'
+    environment:
+      - DATABASE_HOST=mariadb
+      - DATABASE_NAME=my_app_development
+    volumes:
+      - './producer_rails_karafka:/app'
+    depends_on:
+      - mariadb
+      - kafka
+  consumer-rails-karafka:
+    image: docker.io/bitnami/rails:7
+    command: bash -c "cd /app && bundle && bundle exec karafka server"
+    ports:
+      - '3001:3000'
+    environment:
+      - DATABASE_HOST=mariadb
+      - DATABASE_NAME=my_app_development
+    volumes:
+      - './consumer_rails_karafka:/app'
+    depends_on:
+      - mariadb
+      - kafka
+
 
 volumes:
   zookeeper_data:
