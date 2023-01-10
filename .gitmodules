@@ -1,0 +1,3 @@
+[submodule "burrow"]
+	path = burrow
+	url = git@github.com:linkedin/Burrow.git

@@ -71,6 +71,16 @@ services:
       - ZOOKEEPERS=zookeeper:2181
     depends_on:
       - kafka
+  kafka-burrow:
+    build: ./burrow
+    volumes:
+      - ./burrow/docker-config:/etc/burrow/
+      - ./burrow/tmp:/var/tmp/burrow
+    ports:
+      - 8011:8000
+    depends_on:
+      - zookeeper
+      - kafka
   producer_kafka:
     image: ruby
     command: bash -c "cd /app && bundle install && bundle exec ruby producer.rb"
