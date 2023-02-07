@@ -1,6 +1,15 @@
 version: "2"
 
 services:
+
+  
+  # Ruby to extend
+  ruby:
+    image: ruby:3.2.0
+    volumes:
+      - ./gems:/gems
+
+
   # RabbitMQ with RabbitMQ Management
   rabbitmq:
     image: rabbitmq:3.11.5-management
@@ -11,14 +20,14 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
   producer_rabbitmq:
-    image: ruby
+    extends: ruby
     command: bash -c "cd /app && bundle install && bundle exec ruby producer.rb"
     volumes:
       - ./producer_rabbitmq:/app
     depends_on:
       - rabbitmq
   consumer_rabbitmq:
-    image: ruby
+    extends: ruby
     command: bash -c "cd /app && bundle install && bundle exec ruby consumer.rb"
     volumes:
       - ./consumer_rabbitmq:/app
@@ -81,20 +90,29 @@ services:
     depends_on:
       - zookeeper
       - kafka
-  producer_kafka:
-    image: ruby
+  producer-kafka:
+    extends: ruby
     command: bash -c "cd /app && bundle install && bundle exec ruby producer.rb"
     volumes:
       - ./producer_kafka:/app
     depends_on:
       - kafka
-  consumer_kafka:
-    image: ruby
+  consumer-kafka:
+    extends: ruby
     command: bash -c "cd /app && bundle install && bundle exec ruby consumer.rb"
     volumes:
       - ./consumer_kafka:/app
     depends_on:
       - kafka
+  redpanda-kafka:
+    image: docker.redpanda.com/vectorized/console:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - kafka
+
 
   # Rails with Karafka
   mariadb:
