@@ -1,0 +1,5 @@
+services:
+  ruby:
+    image: ruby:3.2.0
+    # volumes:
+    #   - ../gems:/gems

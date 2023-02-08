@@ -1,0 +1,13 @@
+services:
+  producer:
+    image: docker.io/bitnami/rails:7
+    ports:
+      - '3000:3000'
+    environment:
+      - DATABASE_HOST=mariadb
+      - DATABASE_NAME=my_app_development
+    volumes:
+      - '../producer_rails_karafka:/app'
+    depends_on:
+      - mariadb
+      - kafka

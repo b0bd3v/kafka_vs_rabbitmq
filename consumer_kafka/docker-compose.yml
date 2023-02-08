@@ -1,0 +1,8 @@
+services:
+  consumer:
+    image: ruby:3.2.0
+    command: bash -c "cd /app && bundle install && bundle exec ruby consumer.rb"
+    depends_on:
+      - kafka
+    volumes:
+      - ../consumer_kafka:/app
