@@ -3,6 +3,4 @@ source 'https://rubygems.org'
 ruby '3.2.0'
 
 gem 'bunny', '>= 2.19.0'
-gem 'bunny-repository', path: '/gems/bunny-repository'
-
 
