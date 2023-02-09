@@ -1,0 +1,9 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.11.5-management
+    ports:
+      - 5672:5672 # AMQP protocol port
+      - 15672:15672 # HTTP management port
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest

@@ -1,0 +1,14 @@
+services:
+  consumer:
+    image: docker.io/bitnami/rails:7
+    command: bash -c "cd /app && bundle && bundle exec karafka server"
+    ports:
+      - '3001:3000'
+    environment:
+      - DATABASE_HOST=mariadb
+      - DATABASE_NAME=my_app_development
+    volumes:
+      - '../consumer_rails_karafka:/app'
+    depends_on:
+      - mariadb
+      - kafka

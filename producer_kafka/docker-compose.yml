@@ -1,0 +1,10 @@
+services:
+  producer:
+    extends: 
+      file: ../docker/ruby.yml
+      service: ruby
+    command: bash -c "cd /app && bundle install && bundle exec ruby producer.rb"
+    volumes:
+      - ../producer_kafka:/app
+    depends_on:
+      - kafka

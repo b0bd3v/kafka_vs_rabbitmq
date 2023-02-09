@@ -1,0 +1,8 @@
+services:
+  consumer:
+    image: ruby
+    command: bash -c "cd /app && bundle install && bundle exec ruby consumer.rb"
+    volumes:
+      - ../consumer_rabbitmq:/app
+    depends_on:
+      - rabbitmq
